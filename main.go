@@ -1,21 +1,26 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, Go HTTP server!")
-}
-
 func main() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/time", func(w http.ResponseWriter, r *http.Request) {
+		currentTime := time.Now().Format(time.RFC3339)
 
-	// Start the HTTP server on port 8080
-	fmt.Println("Server is running on http://localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
+		response := struct {
+			Time string `json:"time"`
+		}{
+			Time: currentTime,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	})
+
+	fmt.Println("Server running on http://localhost:8795")
+	http.ListenAndServe(":8795", nil)
 }
